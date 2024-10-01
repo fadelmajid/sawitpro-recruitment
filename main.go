@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"sawitpro-recruitment/database"
@@ -19,6 +21,12 @@ func main() {
 
 	// Initialize database
 	database.InitDB()
+
+	// Create tables if they don't exist
+	err := database.Migrate()
+	if err != nil {
+		log.Fatalf("Failed to migrate database: %v", err)
+	}
 
 	// Initialize repositories
 	estateRepo := repositories.NewEstateRepository(database.DB)

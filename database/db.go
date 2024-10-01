@@ -12,7 +12,7 @@ var DB *sql.DB // Global variable to hold the database connection
 // InitDB initializes the database connection
 func InitDB() {
 	// Change this connection string according to your PostgreSQL setup
-	connStr := "user=postgres dbname=plantation sslmode=disable password=yourpassword"
+	connStr := "user=postgres password=yourpassword dbname=plantation host=db sslmode=disable"
 	var err error
 
 	// Open the database connection
