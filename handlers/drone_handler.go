@@ -1,0 +1,100 @@
+package handlers
+
+import (
+	"fmt"
+	"net/http"
+	"strconv"
+	"sawitpro-recruitment/repositories"
+
+	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
+)
+
+// DroneHandler manages drone-related requests.
+type DroneHandler struct {
+	TreeRepo repositories.TreeRepository
+}
+
+// NewDroneHandler creates a new DroneHandler.
+func NewDroneHandler(treeRepo repositories.TreeRepository) *DroneHandler {
+	return &DroneHandler{
+		TreeRepo: treeRepo,
+	}
+}
+
+// CalculateDronePlanWithLimit calculates the drone's total travel distance with an optional max_distance parameter
+func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
+	estateID := c.Param("id")
+	maxDistanceStr := c.QueryParam("max_distance")
+
+	var maxDistance int
+	var limitReached bool
+	if maxDistanceStr != "" {
+		var err error
+		maxDistance, err = strconv.Atoi(maxDistanceStr)
+		if err != nil || maxDistance <= 0 {
+			return c.JSON(http.StatusBadRequest, map[string]string{
+				"message": "Invalid max_distance value",
+			})
+		}
+	}
+
+	// Convert to UUID
+	estateUUID, err := uuid.Parse(estateID)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "Invalid estate ID format")
+	}
+
+	// Get tree heights from the repository
+	treeHeights, err := h.TreeRepo.GetTreesByEstateID(estateUUID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, "Database error")
+	}
+
+	totalDistance := 0
+	prevHeight := 0 // Start at ground level
+	var landingPlotX, landingPlotY int
+
+	// Simulate drone movement (zigzag)
+	for y := 1; y <= 50; y++ { // assuming estate length and width are both 50 for now
+		for x := 1; x <= 50; x++ {
+			key := fmt.Sprintf("%d,%d", x, y)
+			treeHeight := treeHeights[key]
+			verticalDistance := abs(treeHeight - prevHeight)
+			horizontalDistance := 10 // Each plot is 10 meters apart horizontally
+			totalDistance += horizontalDistance + verticalDistance
+			prevHeight = treeHeight
+
+			if maxDistance > 0 && totalDistance > maxDistance {
+				landingPlotX, landingPlotY = x, y
+				limitReached = true
+				break
+			}
+		}
+		if limitReached {
+			break
+		}
+	}
+
+	if limitReached {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"total_distance": totalDistance,
+			"landed_at": map[string]int{
+				"x": landingPlotX,
+				"y": landingPlotY,
+			},
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"total_distance": totalDistance,
+	})
+}
+
+// Helper function for absolute value
+func abs(a int) int {
+	if a < 0 {
+		return -a
+	}
+	return a
+}
