@@ -3,13 +3,12 @@ package main
 import (
     "github.com/labstack/echo/v4"
     "github.com/labstack/echo/v4/middleware"
-    "github.com/sirupsen/logrus"
     "sawitpro-recruitment/database"
     "sawitpro-recruitment/handlers"
     "sawitpro-recruitment/repositories"
     "sawitpro-recruitment/routes"
     "github.com/swaggo/echo-swagger"
-    _ "sawitpro-recruitment/docs" // This is important for the generated docs to be included
+    _ "sawitpro-recruitment/docs" 
 )
 
 // @title SawitPro Recruitment API
@@ -27,12 +26,6 @@ func main() {
 
     // Initialize database
     database.InitDB()
-
-    // Create tables if they don't exist
-    err := database.Migrate()
-    if err != nil {
-        logrus.Fatalf("Failed to migrate database: %v", err)
-    }
 
     // Initialize repositories
     estateRepo := repositories.NewEstateRepository(database.DB)

@@ -30,6 +30,7 @@ services:
       retries: 3
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./database.sql:/docker-entrypoint-initdb.d/database.sql
 
 volumes:
   postgres_data:

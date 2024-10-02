@@ -1,0 +1,222 @@
+openapi: 3.0.0
+info:
+  title: SawitPro Recruitment API
+  description: This is the API documentation for SawitPro Recruitment project.
+  version: "1.0"
+servers:
+  - url: http://localhost:8080
+paths:
+  /estate:
+    post:
+      summary: Create a new estate
+      description: Create a new estate
+      tags:
+        - estates
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Estate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Estate'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /estate/{id}/drone-plan:
+    get:
+      summary: Calculate the drone's total travel distance with an optional max_distance parameter
+      description: Calculate the drone's total travel distance with an optional max_distance parameter
+      tags:
+        - drones
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: max_distance
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DronePlan'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Estate not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /estate/{id}/stats:
+    get:
+      summary: Get stats of trees in an estate
+      description: Get stats of trees in an estate
+      tags:
+        - estates
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstateStats'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Estate not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /estate/{id}/tree:
+    post:
+      summary: Add a tree to an estate
+      description: Add a tree to an estate
+      tags:
+        - trees
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tree'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tree'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Estate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the estate
+        length:
+          type: integer
+          description: Length of the estate in 10m plots
+        width:
+          type: integer
+          description: Width of the estate in 10m plots
+    Tree:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the tree
+        estate_id:
+          type: string
+          format: uuid
+          description: ID of the estate this tree belongs to
+        height:
+          type: integer
+          description: Height of the tree in meters (1 to 30)
+        x:
+          type: integer
+          description: X coordinate of the tree in its plot
+        y:
+          type: integer
+          description: Y coordinate of the tree in its plot
+    EstateStats:
+      type: object
+      properties:
+        count:
+          type: integer
+        max:
+          type: integer
+        min:
+          type: integer
+        median:
+          type: integer
+    DronePlan:
+      type: object
+      properties:
+        total_distance:
+          type: integer
+        landed_at:
+          type: object
+          properties:
+            x:
+              type: integer
+            y:
+              type: integer
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
