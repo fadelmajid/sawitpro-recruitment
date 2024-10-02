@@ -1,10 +1,9 @@
 package main
 
 import (
-    "log"
-
     "github.com/labstack/echo/v4"
     "github.com/labstack/echo/v4/middleware"
+    "github.com/sirupsen/logrus"
     "sawitpro-recruitment/database"
     "sawitpro-recruitment/handlers"
     "sawitpro-recruitment/repositories"
@@ -32,7 +31,7 @@ func main() {
     // Create tables if they don't exist
     err := database.Migrate()
     if err != nil {
-        log.Fatalf("Failed to migrate database: %v", err)
+        logrus.Fatalf("Failed to migrate database: %v", err)
     }
 
     // Initialize repositories

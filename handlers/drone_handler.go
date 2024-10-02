@@ -8,7 +8,7 @@ import (
 
     "github.com/google/uuid"
     "github.com/labstack/echo/v4"
-    log "github.com/sirupsen/logrus"
+    "github.com/sirupsen/logrus"
 )
 
 // DroneHandler manages drone-related requests.
@@ -38,7 +38,7 @@ func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
     estateID := c.Param("id")
     maxDistanceStr := c.QueryParam("max_distance")
 
-    log.WithFields(log.Fields{
+    logrus.WithFields(logrus.Fields{
         "estateID":     estateID,
         "max_distance": maxDistanceStr,
     }).Info("Received request to calculate drone plan")
@@ -49,7 +49,7 @@ func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
         var err error
         maxDistance, err = strconv.Atoi(maxDistanceStr)
         if err != nil || maxDistance <= 0 {
-            log.WithFields(log.Fields{
+            logrus.WithFields(logrus.Fields{
                 "max_distance": maxDistanceStr,
             }).Warn("Invalid max_distance value")
             return c.JSON(http.StatusBadRequest, map[string]string{
@@ -61,7 +61,7 @@ func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
     // Convert to UUID
     estateUUID, err := uuid.Parse(estateID)
     if err != nil {
-        log.WithFields(log.Fields{
+        logrus.WithFields(logrus.Fields{
             "estateID": estateID,
         }).Warn("Invalid estate ID format")
         return c.JSON(http.StatusBadRequest, "Invalid estate ID format")
@@ -70,13 +70,13 @@ func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
     // Get tree heights from the repository
     treeHeights, err := h.TreeRepo.GetTreesByEstateID(estateUUID)
     if err != nil {
-        log.WithFields(log.Fields{
+        logrus.WithFields(logrus.Fields{
             "estateID": estateID,
         }).Error("Database error while fetching tree heights")
         return c.JSON(http.StatusInternalServerError, "Database error")
     }
 
-    log.WithFields(log.Fields{
+    logrus.WithFields(logrus.Fields{
         "estateID": estateID,
     }).Info("Fetched tree heights")
 
@@ -97,7 +97,7 @@ func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
             if maxDistance > 0 && totalDistance > maxDistance {
                 landingPlotX, landingPlotY = x, y
                 limitReached = true
-                log.WithFields(log.Fields{
+                logrus.WithFields(logrus.Fields{
                     "landingPlotX": landingPlotX,
                     "landingPlotY": landingPlotY,
                     "totalDistance": totalDistance,
@@ -111,7 +111,7 @@ func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
     }
 
     if limitReached {
-        log.WithFields(log.Fields{
+        logrus.WithFields(logrus.Fields{
             "landingPlotX": landingPlotX,
             "landingPlotY": landingPlotY,
             "totalDistance": totalDistance,
@@ -125,7 +125,7 @@ func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
         })
     }
 
-    log.WithFields(log.Fields{
+    logrus.WithFields(logrus.Fields{
         "totalDistance": totalDistance,
     }).Info("Drone completed the plan")
     return c.JSON(http.StatusOK, map[string]interface{}{
