@@ -1,4 +1,4 @@
-package tests
+package handlers
 
 import (
     "encoding/json"
@@ -7,8 +7,8 @@ import (
     "strings"
     "testing"
 
-    "sawitpro-recruitment/handlers"
     "sawitpro-recruitment/models"
+    "sawitpro-recruitment/mocks"
     "github.com/golang/mock/gomock"
     "github.com/google/uuid"
     "github.com/labstack/echo/v4"
@@ -19,9 +19,9 @@ func TestTreeHandler_AddTreeToEstate(t *testing.T) {
     ctrl := gomock.NewController(t)
     defer ctrl.Finish()
 
-    mockTreeRepo := NewMockTreeRepository(ctrl)
-    mockEstateRepo := NewMockEstateRepository(ctrl)
-    handler := handlers.NewTreeHandler(mockTreeRepo, mockEstateRepo)
+    mockTreeRepo := mocks.NewMockTreeRepository(ctrl)
+    mockEstateRepo := mocks.NewMockEstateRepository(ctrl)
+    handler := NewTreeHandler(mockTreeRepo, mockEstateRepo)
 
     e := echo.New()
     estateID := uuid.New().String()
@@ -49,9 +49,9 @@ func TestTreeHandler_AddTreeToEstate_InvalidInput(t *testing.T) {
     ctrl := gomock.NewController(t)
     defer ctrl.Finish()
 
-    mockTreeRepo := NewMockTreeRepository(ctrl)
-    mockEstateRepo := NewMockEstateRepository(ctrl)
-    handler := handlers.NewTreeHandler(mockTreeRepo, mockEstateRepo)
+    mockTreeRepo := mocks.NewMockTreeRepository(ctrl)
+    mockEstateRepo := mocks.NewMockEstateRepository(ctrl)
+    handler := NewTreeHandler(mockTreeRepo, mockEstateRepo)
 
     e := echo.New()
     estateID := uuid.New().String()
@@ -71,9 +71,9 @@ func TestTreeHandler_AddTreeToEstate_EstateNotFound(t *testing.T) {
     ctrl := gomock.NewController(t)
     defer ctrl.Finish()
 
-    mockTreeRepo := NewMockTreeRepository(ctrl)
-    mockEstateRepo := NewMockEstateRepository(ctrl)
-    handler := handlers.NewTreeHandler(mockTreeRepo, mockEstateRepo)
+    mockTreeRepo := mocks.NewMockTreeRepository(ctrl)
+    mockEstateRepo := mocks.NewMockEstateRepository(ctrl)
+    handler := NewTreeHandler(mockTreeRepo, mockEstateRepo)
 
     e := echo.New()
     estateID := uuid.New().String()
@@ -95,9 +95,9 @@ func TestTreeHandler_AddTreeToEstate_TreeAlreadyExists(t *testing.T) {
     ctrl := gomock.NewController(t)
     defer ctrl.Finish()
 
-    mockTreeRepo := NewMockTreeRepository(ctrl)
-    mockEstateRepo := NewMockEstateRepository(ctrl)
-    handler := handlers.NewTreeHandler(mockTreeRepo, mockEstateRepo)
+    mockTreeRepo := mocks.NewMockTreeRepository(ctrl)
+    mockEstateRepo := mocks.NewMockEstateRepository(ctrl)
+    handler := NewTreeHandler(mockTreeRepo, mockEstateRepo)
 
     e := echo.New()
     estateID := uuid.New().String()

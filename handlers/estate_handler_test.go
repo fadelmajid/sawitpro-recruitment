@@ -1,4 +1,4 @@
-package tests
+package handlers
 
 import (
     "encoding/json"
@@ -6,8 +6,8 @@ import (
     "net/http/httptest"
     "testing"
 
-    "sawitpro-recruitment/handlers"
     "sawitpro-recruitment/models"
+    "sawitpro-recruitment/mocks"
     "github.com/golang/mock/gomock"
     "github.com/google/uuid"
     "github.com/labstack/echo/v4"
@@ -18,8 +18,8 @@ func TestEstateHandler_GetEstateStats(t *testing.T) {
     ctrl := gomock.NewController(t)
     defer ctrl.Finish()
 
-    mockEstateRepo := NewMockEstateRepository(ctrl)
-    handler := handlers.NewEstateHandler(mockEstateRepo)
+    mockEstateRepo := mocks.NewMockEstateRepository(ctrl)
+    handler := NewEstateHandler(mockEstateRepo)
 
     e := echo.New()
     estateID := uuid.New().String()
@@ -29,7 +29,6 @@ func TestEstateHandler_GetEstateStats(t *testing.T) {
     c.SetParamNames("id")
     c.SetParamValues(estateID)
 
-    // Set up expected calls
     mockEstateRepo.EXPECT().GetEstateByID(gomock.Any()).Return(&models.Estate{ID: uuid.MustParse(estateID)}, nil)
     mockEstateRepo.EXPECT().GetEstateStats(gomock.Any()).Return(10, 20, 5, 15, nil)
 
@@ -49,8 +48,8 @@ func TestEstateHandler_GetEstateStats_EstateNotFound(t *testing.T) {
     ctrl := gomock.NewController(t)
     defer ctrl.Finish()
 
-    mockEstateRepo := NewMockEstateRepository(ctrl)
-    handler := handlers.NewEstateHandler(mockEstateRepo)
+    mockEstateRepo := mocks.NewMockEstateRepository(ctrl)
+    handler := NewEstateHandler(mockEstateRepo)
 
     e := echo.New()
     estateID := uuid.New().String()
@@ -60,10 +59,51 @@ func TestEstateHandler_GetEstateStats_EstateNotFound(t *testing.T) {
     c.SetParamNames("id")
     c.SetParamValues(estateID)
 
-    // Set up expected calls
     mockEstateRepo.EXPECT().GetEstateByID(gomock.Any()).Return(nil, nil)
 
     if assert.NoError(t, handler.GetEstateStats(c)) {
         assert.Equal(t, http.StatusNotFound, rec.Code)
+    }
+}
+
+func TestEstateHandler_GetEstateStats_InvalidID(t *testing.T) {
+    ctrl := gomock.NewController(t)
+    defer ctrl.Finish()
+
+    mockEstateRepo := mocks.NewMockEstateRepository(ctrl)
+    handler := NewEstateHandler(mockEstateRepo)
+
+    e := echo.New()
+    req := httptest.NewRequest(http.MethodGet, "/estate/invalid-id/stats", nil)
+    rec := httptest.NewRecorder()
+    c := e.NewContext(req, rec)
+    c.SetParamNames("id")
+    c.SetParamValues("invalid-id")
+
+    if assert.NoError(t, handler.GetEstateStats(c)) {
+        assert.Equal(t, http.StatusBadRequest, rec.Code)
+    }
+}
+
+func TestEstateHandler_GetEstateStats_ErrorFetchingStats(t *testing.T) {
+    ctrl := gomock.NewController(t)
+    defer ctrl.Finish()
+
+    mockEstateRepo := mocks.NewMockEstateRepository(ctrl)
+    handler := NewEstateHandler(mockEstateRepo)
+
+    e := echo.New()
+    estateID := uuid.New().String()
+    req := httptest.NewRequest(http.MethodGet, "/estate/"+estateID+"/stats", nil)
+    rec := httptest.NewRecorder()
+    c := e.NewContext(req, rec)
+    c.SetParamNames("id")
+    c.SetParamValues(estateID)
+
+    mockEstateRepo.EXPECT().GetEstateByID(gomock.Any()).Return(&models.Estate{ID: uuid.MustParse(estateID)}, nil)
+    mockEstateRepo.EXPECT().GetEstateStats(gomock.Any()).Return(0, 0, 0, 0, assert.AnError)
+
+    if assert.NoError(t, handler.GetEstateStats(c)) {
+        assert.Equal(t, http.StatusInternalServerError, rec.Code)
     }
 }

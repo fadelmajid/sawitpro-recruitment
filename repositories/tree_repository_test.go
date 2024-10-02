@@ -1,8 +1,9 @@
-package tests
+package repositories
 
 import (
     "testing"
     "sawitpro-recruitment/models"
+    "sawitpro-recruitment/mocks"
     "github.com/golang/mock/gomock"
     "github.com/google/uuid"
     "github.com/stretchr/testify/assert"
@@ -12,7 +13,7 @@ func TestTreeRepository_AddTreeToEstate(t *testing.T) {
     ctrl := gomock.NewController(t)
     defer ctrl.Finish()
 
-    mockRepo := NewMockTreeRepository(ctrl)
+    mockRepo := mocks.NewMockTreeRepository(ctrl)
 
     tree := &models.Tree{
         ID:       uuid.New(),
@@ -32,7 +33,7 @@ func TestTreeRepository_GetTreeByCoordinates(t *testing.T) {
     ctrl := gomock.NewController(t)
     defer ctrl.Finish()
 
-    mockRepo := NewMockTreeRepository(ctrl)
+    mockRepo := mocks.NewMockTreeRepository(ctrl)
 
     estateID := uuid.New()
     expectedTree := &models.Tree{
@@ -53,7 +54,7 @@ func TestTreeRepository_GetTreesByEstateID(t *testing.T) {
     ctrl := gomock.NewController(t)
     defer ctrl.Finish()
 
-    mockRepo := NewMockTreeRepository(ctrl)
+    mockRepo := mocks.NewMockTreeRepository(ctrl)
 
     estateID := uuid.New()
     expectedTreeHeights := map[string]int{

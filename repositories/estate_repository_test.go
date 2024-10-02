@@ -1,8 +1,9 @@
-package tests
+package repositories
 
 import (
     "testing"
     "sawitpro-recruitment/models"
+    "sawitpro-recruitment/mocks"
     "github.com/golang/mock/gomock"
     "github.com/google/uuid"
     "github.com/stretchr/testify/assert"
@@ -12,7 +13,7 @@ func TestEstateRepository_CreateEstate(t *testing.T) {
     ctrl := gomock.NewController(t)
     defer ctrl.Finish()
 
-    mockRepo := NewMockEstateRepository(ctrl)
+    mockRepo := mocks.NewMockEstateRepository(ctrl)
 
     estate := &models.Estate{
         ID:     uuid.New(),
@@ -30,7 +31,7 @@ func TestEstateRepository_GetEstateByID(t *testing.T) {
     ctrl := gomock.NewController(t)
     defer ctrl.Finish()
 
-    mockRepo := NewMockEstateRepository(ctrl)
+    mockRepo := mocks.NewMockEstateRepository(ctrl)
 
     estateID := uuid.New()
     expectedEstate := &models.Estate{
@@ -50,7 +51,7 @@ func TestEstateRepository_GetEstateStats(t *testing.T) {
     ctrl := gomock.NewController(t)
     defer ctrl.Finish()
 
-    mockRepo := NewMockEstateRepository(ctrl)
+    mockRepo := mocks.NewMockEstateRepository(ctrl)
 
     estateID := uuid.New()
     expectedCount, expectedMax, expectedMin, expectedMedian := 10, 50, 5, 25
