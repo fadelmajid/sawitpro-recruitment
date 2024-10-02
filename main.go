@@ -41,7 +41,7 @@ func main() {
     // Initialize handlers
     estateHandler := handlers.NewEstateHandler(estateRepo)
     treeHandler := handlers.NewTreeHandler(treeRepo, estateRepo)
-    droneHandler := handlers.NewDroneHandler(treeRepo)
+    droneHandler := handlers.NewDroneHandler(treeRepo, estateRepo)
 
     // Initialize routes
     routes.InitRoutes(e, estateHandler, treeHandler, droneHandler)

@@ -14,12 +14,14 @@ import (
 // DroneHandler manages drone-related requests.
 type DroneHandler struct {
     TreeRepo repositories.TreeRepository
+    EstateRepo repositories.EstateRepository
 }
 
 // NewDroneHandler creates a new DroneHandler.
-func NewDroneHandler(treeRepo repositories.TreeRepository) *DroneHandler {
+func NewDroneHandler(treeRepo repositories.TreeRepository, estateRepo repositories.EstateRepository) *DroneHandler {
     return &DroneHandler{
         TreeRepo: treeRepo,
+        EstateRepo: estateRepo,
     }
 }
 
@@ -32,6 +34,7 @@ func NewDroneHandler(treeRepo repositories.TreeRepository) *DroneHandler {
 // @Param max_distance query int false "Maximum distance the drone can travel"
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /estate/{id}/drone-plan [get]
 func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
@@ -69,6 +72,25 @@ func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
         })
     }
 
+    // Check if the estate exists
+    estate, err := h.EstateRepo.GetEstateByID(estateUUID)
+    if err != nil {
+        logrus.WithFields(logrus.Fields{
+            "estateID": estateID,
+        }).Error("Database error while retrieving estate")
+        return c.JSON(http.StatusInternalServerError, map[string]string{
+            "message": "Database error while retrieving estate",
+        })
+    }
+    if estate == nil {
+        logrus.WithFields(logrus.Fields{
+            "estateID": estateID,
+        }).Warn("Estate not found")
+        return c.JSON(http.StatusNotFound, map[string]string{
+            "message": "Estate not found",
+        })
+    }
+
     // Get tree heights from the repository
     treeHeights, err := h.TreeRepo.GetTreesByEstateID(estateUUID)
     if err != nil {
@@ -89,8 +111,8 @@ func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
     var landingPlotX, landingPlotY int
 
     // Simulate drone movement (zigzag)
-    for y := 1; y <= 50; y++ { // assuming estate length and width are both 50 for now
-        for x := 1; x <= 50; x++ {
+    for y := 1; y <= estate.Length; y++ { // assuming estate length and width are both 50 for now
+        for x := 1; x <= estate.Width; x++ {
             key := fmt.Sprintf("%d,%d", x, y)
             treeHeight := treeHeights[key]
             verticalDistance := abs(treeHeight - prevHeight)
