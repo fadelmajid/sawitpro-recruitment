@@ -8,6 +8,7 @@ import (
 
     "github.com/google/uuid"
     "github.com/labstack/echo/v4"
+    log "github.com/sirupsen/logrus"
 )
 
 // DroneHandler manages drone-related requests.
@@ -37,12 +38,20 @@ func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
     estateID := c.Param("id")
     maxDistanceStr := c.QueryParam("max_distance")
 
+    log.WithFields(log.Fields{
+        "estateID":     estateID,
+        "max_distance": maxDistanceStr,
+    }).Info("Received request to calculate drone plan")
+
     var maxDistance int
     var limitReached bool
     if maxDistanceStr != "" {
         var err error
         maxDistance, err = strconv.Atoi(maxDistanceStr)
         if err != nil || maxDistance <= 0 {
+            log.WithFields(log.Fields{
+                "max_distance": maxDistanceStr,
+            }).Warn("Invalid max_distance value")
             return c.JSON(http.StatusBadRequest, map[string]string{
                 "message": "Invalid max_distance value",
             })
@@ -52,14 +61,24 @@ func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
     // Convert to UUID
     estateUUID, err := uuid.Parse(estateID)
     if err != nil {
+        log.WithFields(log.Fields{
+            "estateID": estateID,
+        }).Warn("Invalid estate ID format")
         return c.JSON(http.StatusBadRequest, "Invalid estate ID format")
     }
 
     // Get tree heights from the repository
     treeHeights, err := h.TreeRepo.GetTreesByEstateID(estateUUID)
     if err != nil {
+        log.WithFields(log.Fields{
+            "estateID": estateID,
+        }).Error("Database error while fetching tree heights")
         return c.JSON(http.StatusInternalServerError, "Database error")
     }
+
+    log.WithFields(log.Fields{
+        "estateID": estateID,
+    }).Info("Fetched tree heights")
 
     totalDistance := 0
     prevHeight := 0 // Start at ground level
@@ -78,6 +97,11 @@ func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
             if maxDistance > 0 && totalDistance > maxDistance {
                 landingPlotX, landingPlotY = x, y
                 limitReached = true
+                log.WithFields(log.Fields{
+                    "landingPlotX": landingPlotX,
+                    "landingPlotY": landingPlotY,
+                    "totalDistance": totalDistance,
+                }).Info("Max distance reached")
                 break
             }
         }
@@ -87,6 +111,11 @@ func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
     }
 
     if limitReached {
+        log.WithFields(log.Fields{
+            "landingPlotX": landingPlotX,
+            "landingPlotY": landingPlotY,
+            "totalDistance": totalDistance,
+        }).Info("Drone landed")
         return c.JSON(http.StatusOK, map[string]interface{}{
             "total_distance": totalDistance,
             "landed_at": map[string]int{
@@ -96,6 +125,9 @@ func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
         })
     }
 
+    log.WithFields(log.Fields{
+        "totalDistance": totalDistance,
+    }).Info("Drone completed the plan")
     return c.JSON(http.StatusOK, map[string]interface{}{
         "total_distance": totalDistance,
     })

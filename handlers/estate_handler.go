@@ -6,7 +6,7 @@ import (
     "sawitpro-recruitment/repositories"
     "github.com/google/uuid"
     "github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
+    "github.com/sirupsen/logrus"
 )
 
 // EstateHandler manages estate-related requests.
@@ -35,6 +35,7 @@ func NewEstateHandler(repo repositories.EstateRepository) *EstateHandler {
 func (h *EstateHandler) CreateEstate(c echo.Context) error {
     estate := new(models.Estate)
     if err := c.Bind(estate); err != nil {
+        logrus.Warnf("Failed to bind estate: %v", err)
         return c.JSON(http.StatusBadRequest, map[string]string{
             "message": "Invalid input format",
         })
@@ -42,6 +43,7 @@ func (h *EstateHandler) CreateEstate(c echo.Context) error {
 
     // Validate estate dimensions
     if estate.Width < 1 || estate.Length < 1 || estate.Width > 50000 || estate.Length > 50000 {
+        logrus.Warnf("Invalid estate dimensions: width=%d, length=%d", estate.Width, estate.Length)
         return c.JSON(http.StatusBadRequest, map[string]string{
             "message": "Estate dimensions must be between 1 and 50000",
         })
@@ -51,11 +53,13 @@ func (h *EstateHandler) CreateEstate(c echo.Context) error {
 
     // Call the repository to create estate
     if err := h.EstateRepo.CreateEstate(estate); err != nil {
+        logrus.Errorf("Failed to store estate in database: %v", err)
         return c.JSON(http.StatusInternalServerError, map[string]string{
             "message": "Failed to store estate in database",
         })
     }
 
+    logrus.Infof("Estate created successfully: %v", estate.ID)
     return c.JSON(http.StatusCreated, estate)
 }
 
@@ -75,13 +79,14 @@ func (h *EstateHandler) GetEstateStats(c echo.Context) error {
     // Convert to UUID
     estateID, err := uuid.Parse(id)
     if err != nil {
+        logrus.Warnf("Invalid estate ID format: %s", id)
         return c.JSON(http.StatusBadRequest, "Invalid estate ID format")
     }
 
     // Call the repository to get stats
     count, max, min, median, err := h.EstateRepo.GetEstateStats(estateID)
     if err != nil {
-		logrus.Errorf("Failed to get estate stats for ID %s: %v", estateID, err)
+        logrus.Errorf("Failed to get estate stats for ID %s: %v", estateID, err)
         return c.JSON(http.StatusInternalServerError, "Database error")
     }
 
@@ -92,5 +97,6 @@ func (h *EstateHandler) GetEstateStats(c echo.Context) error {
         "median": median,
     }
 
+    logrus.Infof("Estate stats retrieved successfully for ID %s", estateID)
     return c.JSON(http.StatusOK, stats)
 }
