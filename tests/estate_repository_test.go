@@ -8,7 +8,7 @@ import (
     "github.com/stretchr/testify/assert"
 )
 
-func TestCreateEstate(t *testing.T) {
+func TestEstateRepository_CreateEstate(t *testing.T) {
     ctrl := gomock.NewController(t)
     defer ctrl.Finish()
 
@@ -26,7 +26,7 @@ func TestCreateEstate(t *testing.T) {
     assert.NoError(t, err)
 }
 
-func TestGetEstateByID(t *testing.T) {
+func TestEstateRepository_GetEstateByID(t *testing.T) {
     ctrl := gomock.NewController(t)
     defer ctrl.Finish()
 
@@ -46,7 +46,7 @@ func TestGetEstateByID(t *testing.T) {
     assert.Equal(t, expectedEstate, estate)
 }
 
-func TestGetEstateStats(t *testing.T) {
+func TestEstateRepository_GetEstateStats(t *testing.T) {
     ctrl := gomock.NewController(t)
     defer ctrl.Finish()
 

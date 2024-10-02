@@ -8,7 +8,7 @@ import (
     "github.com/stretchr/testify/assert"
 )
 
-func TestAddTreeToEstate(t *testing.T) {
+func TestTreeRepository_AddTreeToEstate(t *testing.T) {
     ctrl := gomock.NewController(t)
     defer ctrl.Finish()
 
@@ -28,7 +28,7 @@ func TestAddTreeToEstate(t *testing.T) {
     assert.NoError(t, err)
 }
 
-func TestGetTreeByCoordinates(t *testing.T) {
+func TestTreeRepository_GetTreeByCoordinates(t *testing.T) {
     ctrl := gomock.NewController(t)
     defer ctrl.Finish()
 
@@ -49,7 +49,7 @@ func TestGetTreeByCoordinates(t *testing.T) {
     assert.Equal(t, expectedTree, tree)
 }
 
-func TestGetTreesByEstateID(t *testing.T) {
+func TestTreeRepository_GetTreesByEstateID(t *testing.T) {
     ctrl := gomock.NewController(t)
     defer ctrl.Finish()
 
