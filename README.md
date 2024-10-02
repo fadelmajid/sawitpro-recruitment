@@ -41,7 +41,7 @@ The docker-compose.yml file defines two services:
 - app: The Go application service.
 - db: The PostgreSQL database service.
 
-## Running the Application**
+## Running the Application
 To build and run the application using Docker Compose, follow these steps:
 
 1. Start the application:
@@ -107,7 +107,7 @@ Optional Query Parameter:
 max_distance: Limit the total distance the drone can travel before landing.
 Response: 200 OK with the total distance or the point where the drone will land.
 
-Makefile Commands
+## Makefile Commands
 The project includes a Makefile for easy command execution:
 
 Build the application:
