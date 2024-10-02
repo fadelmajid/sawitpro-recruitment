@@ -30,7 +30,6 @@ To run this project locally, ensure you have the following dependencies installe
 2. **Install Go dependencies (if you are not using Docker):**
     Use go mod to install all dependencies:
     ```
-    Copy code
     go mod tidy
 
 ## Docker Setup
@@ -46,12 +45,11 @@ To build and run the application using Docker Compose, follow these steps:
 
 1. Start the application:
     ```
-    Copy code
     make docker-up
     
-    This command will:
-    - Build the Docker images.
-    - Start the application and the PostgreSQL database container.
+This command will:
+- Build the Docker images.
+- Start the application and the PostgreSQL database container.
 
 2. Access the API:
 Once the application is running, you can access the API at http://localhost:8080.
@@ -62,10 +60,9 @@ You can run tests locally or as part of the Docker build process.
 1. Run tests locally:
 
     ```
-    Copy code
     make test
     
-    This command will execute all tests in the project.
+This command will execute all tests in the project.
 
 2. Run tests with Docker:
 
@@ -78,7 +75,6 @@ Here are the main API endpoints provided by this application:
 Endpoint: POST /estate
 Request Body:
     ```json
-    Copy code
     {
         "width": 10,
         "length": 10
@@ -90,7 +86,6 @@ Response: 201 Created with the created estate details.
 Endpoint: POST /estate/:id/tree
 Request Body:
     ```json
-    Copy code
     {
         "x": 3,
         "y": 2,
@@ -114,30 +109,20 @@ The project includes a Makefile for easy command execution:
 
 Build the application:
 
-    ```
-    Copy code
     make build
     
 Run the application locally:
 
-    ```
-    Copy code
     make run
 
 Run tests:
 
-    ```
-    Copy code
     make test
 
 Start the application with Docker Compose:
 
-    ```
-    Copy code
     make docker-up
 
 Stop and remove containers:
 
-    ```
-    Copy code
     make docker-down
