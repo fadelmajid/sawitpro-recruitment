@@ -73,6 +73,7 @@ func (h *EstateHandler) CreateEstate(c echo.Context) error {
 // @Param id path string true "Estate ID"
 // @Success 200 {object} map[string]int
 // @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /estate/{id}/stats [get]
 func (h *EstateHandler) GetEstateStats(c echo.Context) error {
@@ -84,6 +85,21 @@ func (h *EstateHandler) GetEstateStats(c echo.Context) error {
         logrus.Warnf("Invalid estate ID format: %s", id)
         return c.JSON(http.StatusBadRequest, map[string]string{
             "message": "Invalid estate ID format",
+        })
+    }
+
+    // Check if the estate exists
+    estate, err := h.EstateRepo.GetEstateByID(estateID)
+    if err != nil {
+        logrus.Errorf("Database error while retrieving estate ID %s: %v", estateID, err)
+        return c.JSON(http.StatusInternalServerError, map[string]string{
+            "message": "Database error while retrieving estate",
+        })
+    }
+    if estate == nil {
+        logrus.Warnf("Estate not found: %s", estateID)
+        return c.JSON(http.StatusNotFound, map[string]string{
+            "message": "Estate not found",
         })
     }
 
