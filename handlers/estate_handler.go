@@ -33,10 +33,7 @@ func NewEstateHandler(repo repositories.EstateRepository) *EstateHandler {
 // @Failure 500 {object} map[string]string
 // @Router /estate [post]
 func (h *EstateHandler) CreateEstate(c echo.Context) error {
-    estate := &models.Estate{
-        Width:  c.FormValue("width"),
-        Length: c.FormValue("length"),
-    }
+    estate := new(models.Estate)
     if err := c.Bind(estate); err != nil {
         logrus.Warnf("Failed to bind estate: %v", err)
         return c.JSON(http.StatusBadRequest, map[string]string{

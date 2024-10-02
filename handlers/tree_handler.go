@@ -35,11 +35,7 @@ func NewTreeHandler(repo repositories.TreeRepository) *TreeHandler {
 // @Router /estate/{id}/tree [post]
 func (h *TreeHandler) AddTreeToEstate(c echo.Context) error {
     estateID := c.Param("id")
-    tree := &models.Tree{
-        X:        c.FormValue("X"),
-        Y:        c.FormValue("Y"),
-        Height:   c.FormValue("height"),
-    }
+    tree := new(models.Tree)
     if err := c.Bind(tree); err != nil {
         logrus.Warnf("Failed to bind tree: %v", err)
         return c.JSON(http.StatusBadRequest, map[string]string{
