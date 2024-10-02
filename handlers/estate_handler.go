@@ -34,6 +34,8 @@ func NewEstateHandler(repo repositories.EstateRepository) *EstateHandler {
 // @Router /estate [post]
 func (h *EstateHandler) CreateEstate(c echo.Context) error {
     estate := new(models.Estate)
+    
+    // Bind the request body to the estate model
     if err := c.Bind(estate); err != nil {
         logrus.Warnf("Failed to bind estate: %v", err)
         return c.JSON(http.StatusBadRequest, map[string]string{
@@ -80,14 +82,18 @@ func (h *EstateHandler) GetEstateStats(c echo.Context) error {
     estateID, err := uuid.Parse(id)
     if err != nil {
         logrus.Warnf("Invalid estate ID format: %s", id)
-        return c.JSON(http.StatusBadRequest, "Invalid estate ID format")
+        return c.JSON(http.StatusBadRequest, map[string]string{
+            "message": "Invalid estate ID format",
+        })
     }
 
     // Call the repository to get stats
     count, max, min, median, err := h.EstateRepo.GetEstateStats(estateID)
     if err != nil {
         logrus.Errorf("Failed to get estate stats for ID %s: %v", estateID, err)
-        return c.JSON(http.StatusInternalServerError, "Database error")
+        return c.JSON(http.StatusInternalServerError, map[string]string{
+            "message": "Database error while fetching estate stats",
+        })
     }
 
     stats := map[string]int{

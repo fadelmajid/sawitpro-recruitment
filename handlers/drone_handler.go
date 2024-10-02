@@ -64,7 +64,9 @@ func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
         logrus.WithFields(logrus.Fields{
             "estateID": estateID,
         }).Warn("Invalid estate ID format")
-        return c.JSON(http.StatusBadRequest, "Invalid estate ID format")
+        return c.JSON(http.StatusBadRequest, map[string]string{
+            "message": "Invalid estate ID format",
+        })
     }
 
     // Get tree heights from the repository
@@ -73,7 +75,9 @@ func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
         logrus.WithFields(logrus.Fields{
             "estateID": estateID,
         }).Error("Database error while fetching tree heights")
-        return c.JSON(http.StatusInternalServerError, "Database error")
+        return c.JSON(http.StatusInternalServerError, map[string]string{
+            "message": "Database error while fetching tree heights",
+        })
     }
 
     logrus.WithFields(logrus.Fields{

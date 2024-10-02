@@ -36,6 +36,8 @@ func NewTreeHandler(repo repositories.TreeRepository) *TreeHandler {
 func (h *TreeHandler) AddTreeToEstate(c echo.Context) error {
     estateID := c.Param("id")
     tree := new(models.Tree)
+    
+    // Bind the request body to the tree model
     if err := c.Bind(tree); err != nil {
         logrus.Warnf("Failed to bind tree: %v", err)
         return c.JSON(http.StatusBadRequest, map[string]string{
@@ -51,18 +53,22 @@ func (h *TreeHandler) AddTreeToEstate(c echo.Context) error {
         })
     }
 
-    // Convert to UUID
+    // Convert estate ID to UUID
     estateUUID, err := uuid.Parse(estateID)
     if err != nil {
         logrus.Warnf("Invalid estate ID format: %s", estateID)
-        return c.JSON(http.StatusBadRequest, "Invalid estate ID format")
+        return c.JSON(http.StatusBadRequest, map[string]string{
+            "message": "Invalid estate ID format",
+        })
     }
 
     // Check if a tree already exists at the given coordinates
     existingTree, err := h.TreeRepo.GetTreeByCoordinates(estateUUID, tree.X, tree.Y)
     if err != nil {
         logrus.Errorf("Database error while checking existing tree for estate ID %s: %v", estateUUID, err)
-        return c.JSON(http.StatusInternalServerError, "Database error")
+        return c.JSON(http.StatusInternalServerError, map[string]string{
+            "message": "Database error while checking existing tree",
+        })
     }
     if existingTree != nil {
         logrus.Warnf("A tree already exists at location x=%d, y=%d for estate ID %s", tree.X, tree.Y, estateUUID)
@@ -71,6 +77,7 @@ func (h *TreeHandler) AddTreeToEstate(c echo.Context) error {
         })
     }
 
+    // Assign a new UUID to the tree and set the estate ID
     tree.ID = uuid.New()
     tree.EstateID = estateUUID
 
