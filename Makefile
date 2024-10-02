@@ -13,3 +13,11 @@ docker-up:
 
 docker-down:
 	docker-compose down
+
+test:
+	go clean -testcache
+	go test -cover ./...
+
+test_api:
+	go clean -testcache
+	go test ./tests/...
