@@ -3,13 +3,10 @@
 .PHONY: build run test docker-up docker-down
 
 build:
-	go build -o main .
+	go build -o main ./cmd
 
 run: build
 	./main
-
-test:
-	go test ./...
 
 docker-up:
 	docker-compose up --build

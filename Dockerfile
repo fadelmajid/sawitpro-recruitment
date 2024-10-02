@@ -17,13 +17,13 @@ RUN go install github.com/swaggo/swag/cmd/swag@latest
 COPY . .
 
 # Generate Swagger documentation
-RUN swag init
+RUN swag init -g cmd/main.go
 
 # Run tests
 RUN go test -v ./...
 
 # Build the Go app with CGO disabled for static linking
-RUN CGO_ENABLED=0 go build -o main .
+RUN CGO_ENABLED=0 go build -o main ./cmd
 
 # Second stage: Create a smaller image for production
 FROM alpine:latest
