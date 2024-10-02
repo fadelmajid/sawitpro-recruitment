@@ -1,0 +1,272 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is the API documentation for SawitPro Recruitment project.",
+        "title": "SawitPro Recruitment API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/estate": {
+            "post": {
+                "description": "Create a new estate",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "estates"
+                ],
+                "summary": "Create a new estate",
+                "parameters": [
+                    {
+                        "description": "Estate",
+                        "name": "estate",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Estate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Estate"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/estate/{id}/drone-plan": {
+            "get": {
+                "description": "Calculate the drone's total travel distance with an optional max_distance parameter",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "drones"
+                ],
+                "summary": "Calculate the drone's total travel distance with an optional max_distance parameter",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Estate ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum distance the drone can travel",
+                        "name": "max_distance",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/estate/{id}/stats": {
+            "get": {
+                "description": "Get stats of trees in an estate",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "estates"
+                ],
+                "summary": "Get stats of trees in an estate",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Estate ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/estate/{id}/tree": {
+            "post": {
+                "description": "Add a tree to an estate",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "trees"
+                ],
+                "summary": "Add a tree to an estate",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Estate ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Tree",
+                        "name": "tree",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Tree"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Tree"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.Estate": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "Unique identifier for the estate",
+                    "type": "string"
+                },
+                "length": {
+                    "description": "Length of the estate in 10m plots",
+                    "type": "integer"
+                },
+                "width": {
+                    "description": "Width of the estate in 10m plots",
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Tree": {
+            "type": "object",
+            "properties": {
+                "estate_id": {
+                    "description": "ID of the estate this tree belongs to",
+                    "type": "string"
+                },
+                "height": {
+                    "description": "Height of the tree in meters (1 to 30)",
+                    "type": "integer"
+                },
+                "id": {
+                    "description": "Unique identifier for the tree",
+                    "type": "string"
+                },
+                "x": {
+                    "description": "X coordinate of the tree in its plot",
+                    "type": "integer"
+                },
+                "y": {
+                    "description": "Y coordinate of the tree in its plot",
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}
