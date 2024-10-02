@@ -10,15 +10,8 @@ COPY go.mod go.sum ./
 # Download all dependencies
 RUN go mod download
 
-# Install mockgen tool
-RUN go install github.com/golang/mock/mockgen@v1.6.0
-
 # Copy the source code into the container
 COPY . .
-
-# Generate mocks for the repositories
-RUN mockgen -source=repositories/estate_repository.go -destination=tests/mocks/mock_estate_repository.go -package=mocks
-RUN mockgen -source=repositories/tree_repository.go -destination=tests/mocks/mock_tree_repository.go -package=mocks
 
 # Build the Go app with CGO disabled for static linking
 RUN CGO_ENABLED=0 go build -o main .
