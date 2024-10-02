@@ -10,7 +10,7 @@ import (
     "sawitpro-recruitment/repositories"
     "sawitpro-recruitment/routes"
     "github.com/swaggo/echo-swagger"
-    _ "sawitpro-recruitment/docs"
+    _ "sawitpro-recruitment/docs" // This is important for the generated docs to be included
 )
 
 // @title SawitPro Recruitment API

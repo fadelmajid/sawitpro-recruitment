@@ -45,11 +45,41 @@ func (r *estateRepository) GetEstateByID(id uuid.UUID) (*models.Estate, error) {
 }
 
 // GetEstateStats retrieves statistics about trees in a specified estate.
-func (r *estateRepository) GetEstateStats(id uuid.UUID) (int, int, int, int, error) {
-	var count, max, min, median int
-	err := r.db.QueryRow("SELECT COUNT(*), MAX(height), MIN(height), PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY height) FROM trees WHERE estate_id = $1", id).Scan(&count, &max, &min, &median)
-	if err != nil {
-		return 0, 0, 0, 0, err
-	}
-	return count, max, min, median, nil
+func (r *estateRepository) GetEstateStats(estateID uuid.UUID) (int, int, int, int, error) {
+    var count int
+    var max, min, median sql.NullInt64
+
+    query := `
+        SELECT 
+            COUNT(*), 
+            MAX(height), 
+            MIN(height), 
+            PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY height) 
+        FROM trees 
+        WHERE estate_id = $1
+    `
+
+    row := r.db.QueryRow(query, estateID)
+    err := row.Scan(&count, &max, &min, &median)
+    if err != nil {
+        return 0, 0, 0, 0, err
+    }
+
+    // Convert sql.NullInt64 to int, handling NULL values
+    maxValue := 0
+    if max.Valid {
+        maxValue = int(max.Int64)
+    }
+
+    minValue := 0
+    if min.Valid {
+        minValue = int(min.Int64)
+    }
+
+    medianValue := 0
+    if median.Valid {
+        medianValue = int(median.Int64)
+    }
+
+    return count, maxValue, minValue, medianValue, nil
 }

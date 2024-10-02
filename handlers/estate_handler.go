@@ -6,6 +6,7 @@ import (
     "sawitpro-recruitment/repositories"
     "github.com/google/uuid"
     "github.com/labstack/echo/v4"
+	"github.com/sirupsen/logrus"
 )
 
 // EstateHandler manages estate-related requests.
@@ -80,6 +81,7 @@ func (h *EstateHandler) GetEstateStats(c echo.Context) error {
     // Call the repository to get stats
     count, max, min, median, err := h.EstateRepo.GetEstateStats(estateID)
     if err != nil {
+		logrus.Errorf("Failed to get estate stats for ID %s: %v", estateID, err)
         return c.JSON(http.StatusInternalServerError, "Database error")
     }
 
