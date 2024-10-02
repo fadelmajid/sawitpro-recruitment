@@ -24,12 +24,12 @@ To run this project locally, ensure you have the following dependencies installe
 
 1. **Clone the repository:**
 
-   ```bash
+   ```
    git clone https://github.com/your-username/your-repo-name.git
    cd your-repo-name
 2. **Install Go dependencies (if you are not using Docker):**
     Use go mod to install all dependencies:
-    ```bash
+    ```
     Copy code
     go mod tidy
 
@@ -45,7 +45,7 @@ The docker-compose.yml file defines two services:
 To build and run the application using Docker Compose, follow these steps:
 
 1. Start the application:
-    ```bash
+    ```
     Copy code
     make docker-up
     
@@ -61,7 +61,7 @@ You can run tests locally or as part of the Docker build process.
 
 1. Run tests locally:
 
-    ```bash
+    ```
     Copy code
     make test
     
@@ -77,24 +77,26 @@ Here are the main API endpoints provided by this application:
 1. Create Estate
 Endpoint: POST /estate
 Request Body:
-json
-Copy code
-{
-  "width": 10,
-  "length": 10
-}
+    ```json
+    Copy code
+    {
+        "width": 10,
+        "length": 10
+    }
+
 Response: 201 Created with the created estate details.
 
 2. Add Tree to Estate
 Endpoint: POST /estate/:id/tree
 Request Body:
-json
-Copy code
-{
-  "x": 3,
-  "y": 2,
-  "height": 15
-}
+    ```json
+    Copy code
+    {
+        "x": 3,
+        "y": 2,
+        "height": 15
+    }
+
 Response: 201 Created with the added tree details.
 
 3. Get Estate Stats
@@ -112,30 +114,30 @@ The project includes a Makefile for easy command execution:
 
 Build the application:
 
-    ```bash
+    ```
     Copy code
     make build
     
 Run the application locally:
 
-    ```bash
+    ```
     Copy code
     make run
 
 Run tests:
 
-    ```bash
+    ```
     Copy code
     make test
 
 Start the application with Docker Compose:
 
-    ```bash
+    ```
     Copy code
     make docker-up
 
 Stop and remove containers:
 
-    ```bash
+    ```
     Copy code
     make docker-down
