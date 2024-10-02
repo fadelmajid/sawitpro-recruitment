@@ -11,13 +11,15 @@ import (
 
 // TreeHandler manages tree-related requests.
 type TreeHandler struct {
-    TreeRepo repositories.TreeRepository
+    TreeRepo   repositories.TreeRepository
+    EstateRepo repositories.EstateRepository
 }
 
 // NewTreeHandler creates a new TreeHandler.
-func NewTreeHandler(repo repositories.TreeRepository) *TreeHandler {
+func NewTreeHandler(treeRepo repositories.TreeRepository, estateRepo repositories.EstateRepository) *TreeHandler {
     return &TreeHandler{
-        TreeRepo: repo,
+        TreeRepo:   treeRepo,
+        EstateRepo: estateRepo,
     }
 }
 
@@ -31,6 +33,7 @@ func NewTreeHandler(repo repositories.TreeRepository) *TreeHandler {
 // @Param tree body models.Tree true "Tree"
 // @Success 201 {object} models.Tree
 // @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /estate/{id}/tree [post]
 func (h *TreeHandler) AddTreeToEstate(c echo.Context) error {
@@ -59,6 +62,29 @@ func (h *TreeHandler) AddTreeToEstate(c echo.Context) error {
         logrus.Warnf("Invalid estate ID format: %s", estateID)
         return c.JSON(http.StatusBadRequest, map[string]string{
             "message": "Invalid estate ID format",
+        })
+    }
+
+    // Check if the estate exists
+    estate, err := h.EstateRepo.GetEstateByID(estateUUID)
+    if err != nil {
+        logrus.Errorf("Database error while retrieving estate ID %s: %v", estateUUID, err)
+        return c.JSON(http.StatusInternalServerError, map[string]string{
+            "message": "Database error while retrieving estate",
+        })
+    }
+    if estate == nil {
+        logrus.Warnf("Estate not found: %s", estateUUID)
+        return c.JSON(http.StatusNotFound, map[string]string{
+            "message": "Estate not found",
+        })
+    }
+
+    // Validate coordinates within estate bounds
+    if tree.X > estate.Width || tree.Y > estate.Length {
+        logrus.Warnf("Tree coordinates out of bounds: x=%d, y=%d", tree.X, tree.Y)
+        return c.JSON(http.StatusBadRequest, map[string]string{
+            "message": "Tree coordinates out of bounds",
         })
     }
 
