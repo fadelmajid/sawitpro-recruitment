@@ -1,6 +1,6 @@
 # Makefile for managing the application
 
-.PHONY: build run test docker-up docker-down generated
+.PHONY: build all init test docker-up docker-down generated
 
 all: build/main
 
@@ -11,7 +11,7 @@ build/main: cmd/main.go generated
 clean:
 	rm -rf generated
 
-init: clean generate
+init: clean generated
 	go mod tidy
 	go mod vendor
 
@@ -19,10 +19,10 @@ run: build
 	./main
 
 docker-up: generated
-	docker-compose up --build
+	docker-compose up --build -d
 
 docker-down:
-	docker-compose down
+	docker-compose down --volumes
 
 test:
 	go clean -testcache
