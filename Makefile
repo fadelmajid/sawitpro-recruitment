@@ -23,9 +23,8 @@ docker-down:
 
 test:
 	go clean -testcache
-	go test -short -cover  -coverprofile=coverage.out ./handlers ./repositories
+	go test -short -cover -coverprofile=coverage.out ./handlers ./repositories ./tests
 	go tool cover -html=coverage.out -o coverage.html
-	open coverage.html
 
 test_api:
 	go clean -testcache
