@@ -8,7 +8,7 @@ build:
 run: build
 	./main
 
-docker-up:
+docker-up: generated
 	docker-compose up --build
 
 docker-down:
@@ -21,3 +21,8 @@ test:
 test_api:
 	go clean -testcache
 	go test ./tests/...
+
+generated: api.yml
+	@echo "Generating files..."
+	mkdir generated || true
+	oapi-codegen --package generated -generate types,server,spec $< > generated/api.gen.go

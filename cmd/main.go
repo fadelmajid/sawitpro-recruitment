@@ -3,12 +3,11 @@ package main
 import (
     "github.com/labstack/echo/v4"
     "github.com/labstack/echo/v4/middleware"
-    "sawitpro-recruitment/database"
-    "sawitpro-recruitment/handlers"
-    "sawitpro-recruitment/repositories"
-    "sawitpro-recruitment/routes"
     "github.com/swaggo/echo-swagger"
-    _ "sawitpro-recruitment/docs" 
+    "sawitpro-recruitment/database"
+    "sawitpro-recruitment/generated"
+    "sawitpro-recruitment/repositories"
+    _ "sawitpro-recruitment/docs"
 )
 
 // @title SawitPro Recruitment API
@@ -31,13 +30,11 @@ func main() {
     estateRepo := repositories.NewEstateRepository(database.DB)
     treeRepo := repositories.NewTreeRepository(database.DB)
 
-    // Initialize handlers
-    estateHandler := handlers.NewEstateHandler(estateRepo)
-    treeHandler := handlers.NewTreeHandler(treeRepo, estateRepo)
-    droneHandler := handlers.NewDroneHandler(treeRepo, estateRepo)
+    // Initialize server
+    server := NewServer(estateRepo, treeRepo)
 
-    // Initialize routes
-    routes.InitRoutes(e, estateHandler, treeHandler, droneHandler)
+    // Register handlers
+    generated.RegisterHandlers(e, server)
 
     // Swagger route
     e.GET("/swagger/*", echoSwagger.WrapHandler)
