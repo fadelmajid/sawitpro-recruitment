@@ -2,7 +2,6 @@ package tests
 
 import (
     "bytes"
-    "database/sql"
     "encoding/json"
     "net/http"
     "net/http/httptest"
@@ -34,19 +33,27 @@ func TestAddTreeToEstate(t *testing.T) {
             Y:        1,
             Height:   10,
         }
-        mockTreeRepo.EXPECT().AddTreeToEstate(gomock.Any()).Return(nil)
         mockEstateRepo.EXPECT().GetEstateByID(estateID).Return(&models.Estate{ID: estateID, Width: 100, Length: 100}, nil)
+        mockTreeRepo.EXPECT().GetTreeByCoordinates(estateID, tree.X, tree.Y).Return(nil, nil)
+        mockTreeRepo.EXPECT().AddTreeToEstate(gomock.Any()).DoAndReturn(func(t *models.Tree) error {
+            t.ID = uuid.New()
+            return nil
+        })
 
         body, _ := json.Marshal(tree)
         req := httptest.NewRequest(http.MethodPost, "/estate/"+estateID.String()+"/tree", bytes.NewReader(body))
         req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
         rec := httptest.NewRecorder()
         c := e.NewContext(req, rec)
+        c.SetPath("/estate/:id/tree")
+        c.SetParamNames("id")
+        c.SetParamValues(estateID.String())
 
         if assert.NoError(t, handler.AddTreeToEstate(c)) {
             assert.Equal(t, http.StatusCreated, rec.Code)
             var response models.Tree
             assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &response))
+            assert.NotEqual(t, uuid.Nil, response.ID)
             assert.Equal(t, tree.EstateID, response.EstateID)
             assert.Equal(t, tree.X, response.X)
             assert.Equal(t, tree.Y, response.Y)
@@ -59,6 +66,9 @@ func TestAddTreeToEstate(t *testing.T) {
         req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
         rec := httptest.NewRecorder()
         c := e.NewContext(req, rec)
+        c.SetPath("/estate/:id/tree")
+        c.SetParamNames("id")
+        c.SetParamValues(uuid.New().String())
 
         if assert.NoError(t, handler.AddTreeToEstate(c)) {
             assert.Equal(t, http.StatusBadRequest, rec.Code)
@@ -79,6 +89,9 @@ func TestAddTreeToEstate(t *testing.T) {
         req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
         rec := httptest.NewRecorder()
         c := e.NewContext(req, rec)
+        c.SetPath("/estate/:id/tree")
+        c.SetParamNames("id")
+        c.SetParamValues("invalid-id")
 
         if assert.NoError(t, handler.AddTreeToEstate(c)) {
             assert.Equal(t, http.StatusBadRequest, rec.Code)
@@ -96,7 +109,6 @@ func TestAddTreeToEstate(t *testing.T) {
             Y:        1,
             Height:   10,
         }
-        mockTreeRepo.EXPECT().AddTreeToEstate(gomock.Any()).Return(sql.ErrNoRows)
         mockEstateRepo.EXPECT().GetEstateByID(estateID).Return(nil, nil)
 
         body, _ := json.Marshal(tree)
@@ -104,6 +116,9 @@ func TestAddTreeToEstate(t *testing.T) {
         req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
         rec := httptest.NewRecorder()
         c := e.NewContext(req, rec)
+        c.SetPath("/estate/:id/tree")
+        c.SetParamNames("id")
+        c.SetParamValues(estateID.String())
 
         if assert.NoError(t, handler.AddTreeToEstate(c)) {
             assert.Equal(t, http.StatusNotFound, rec.Code)
