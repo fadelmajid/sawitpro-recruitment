@@ -7,33 +7,13 @@ import (
     "net/http/httptest"
     "testing"
 
-    "github.com/google/uuid"
     "github.com/labstack/echo/v4"
     "github.com/stretchr/testify/assert"
-    "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/mock"
     "sawitpro-recruitment/handlers"
     "sawitpro-recruitment/models"
+	. "sawitpro-recruitment/tests"
 )
-
-// MockEstateRepository is a mock implementation of the EstateRepository interface.
-type MockEstateRepository struct {
-    mock.Mock
-}
-
-func (m *MockEstateRepository) CreateEstate(estate *models.Estate) error {
-    args := m.Called(estate)
-    return args.Error(0)
-}
-
-func (m *MockEstateRepository) GetEstateByID(id uuid.UUID) (*models.Estate, error) {
-    args := m.Called(id)
-    return args.Get(0).(*models.Estate), args.Error(1)
-}
-
-func (m *MockEstateRepository) GetEstateStats(id uuid.UUID) (int, int, int, int, error) {
-    args := m.Called(id)
-    return args.Int(0), args.Int(1), args.Int(2), args.Int(3), args.Error(4)
-}
 
 func TestCreateEstate(t *testing.T) {
     e := echo.New()
