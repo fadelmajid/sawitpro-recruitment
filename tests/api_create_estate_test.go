@@ -9,15 +9,18 @@ import (
 
     "github.com/labstack/echo/v4"
     "github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
+    "github.com/golang/mock/gomock"
     "sawitpro-recruitment/handlers"
     "sawitpro-recruitment/models"
-	. "sawitpro-recruitment/tests"
+    "sawitpro-recruitment/mocks"
 )
 
 func TestCreateEstate(t *testing.T) {
     e := echo.New()
-    mockRepo := new(MockEstateRepository)
+    ctrl := gomock.NewController(t)
+    defer ctrl.Finish()
+
+    mockRepo := mocks.NewMockEstateRepository(ctrl)
     handler := handlers.NewEstateHandler(mockRepo)
 
     t.Run("successful creation", func(t *testing.T) {
@@ -25,7 +28,7 @@ func TestCreateEstate(t *testing.T) {
             Width:  100,
             Length: 100,
         }
-        mockRepo.On("CreateEstate", mock.AnythingOfType("*models.Estate")).Return(nil)
+        mockRepo.EXPECT().CreateEstate(gomock.Any()).Return(nil)
 
         body, _ := json.Marshal(estate)
         req := httptest.NewRequest(http.MethodPost, "/estate", bytes.NewReader(body))
@@ -41,8 +44,6 @@ func TestCreateEstate(t *testing.T) {
             assert.Equal(t, estate.Length, response.Length)
             assert.NotEmpty(t, response.ID)
         }
-
-        mockRepo.AssertExpectations(t)
     })
 
     t.Run("invalid input format", func(t *testing.T) {
