@@ -18,7 +18,7 @@ To run this project locally, ensure you have the following dependencies installe
 
 ## Running the Application
 To build,run, and test the application follow these steps (in file run.sh)
-    ```
+    ```bash
     #!/usr/bin/env bash
     make init                      # Initializes 
     make                           # Builds the binary
