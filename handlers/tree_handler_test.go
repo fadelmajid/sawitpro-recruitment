@@ -2,6 +2,7 @@ package handlers
 
 import (
     "encoding/json"
+    "errors"
     "net/http"
     "net/http/httptest"
     "strings"
@@ -110,6 +111,98 @@ func TestTreeHandler_AddTreeToEstate_TreeAlreadyExists(t *testing.T) {
 
     mockEstateRepo.EXPECT().GetEstateByID(gomock.Any()).Return(&models.Estate{ID: uuid.MustParse(estateID), Width: 100, Length: 200}, nil)
     mockTreeRepo.EXPECT().GetTreeByCoordinates(gomock.Any(), 10, 20).Return(&models.Tree{ID: uuid.New()}, nil)
+
+    if assert.NoError(t, handler.AddTreeToEstate(c)) {
+        assert.Equal(t, http.StatusBadRequest, rec.Code)
+    }
+}
+
+func TestTreeHandler_AddTreeToEstate_InvalidEstateID(t *testing.T) {
+    ctrl := gomock.NewController(t)
+    defer ctrl.Finish()
+
+    mockTreeRepo := mocks.NewMockTreeRepository(ctrl)
+    mockEstateRepo := mocks.NewMockEstateRepository(ctrl)
+    handler := NewTreeHandler(mockTreeRepo, mockEstateRepo)
+
+    e := echo.New()
+    invalidEstateID := "invalid-uuid"
+    req := httptest.NewRequest(http.MethodPost, "/estate/"+invalidEstateID+"/tree", strings.NewReader(`{"x": 10, "y": 20, "height": 15}`))
+    req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+    rec := httptest.NewRecorder()
+    c := e.NewContext(req, rec)
+    c.SetParamNames("id")
+    c.SetParamValues(invalidEstateID)
+
+    if assert.NoError(t, handler.AddTreeToEstate(c)) {
+        assert.Equal(t, http.StatusBadRequest, rec.Code)
+    }
+}
+
+func TestTreeHandler_AddTreeToEstate_DatabaseError(t *testing.T) {
+    ctrl := gomock.NewController(t)
+    defer ctrl.Finish()
+
+    mockTreeRepo := mocks.NewMockTreeRepository(ctrl)
+    mockEstateRepo := mocks.NewMockEstateRepository(ctrl)
+    handler := NewTreeHandler(mockTreeRepo, mockEstateRepo)
+
+    e := echo.New()
+    estateID := uuid.New().String()
+    req := httptest.NewRequest(http.MethodPost, "/estate/"+estateID+"/tree", strings.NewReader(`{"x": 10, "y": 20, "height": 15}`))
+    req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+    rec := httptest.NewRecorder()
+    c := e.NewContext(req, rec)
+    c.SetParamNames("id")
+    c.SetParamValues(estateID)
+
+    mockEstateRepo.EXPECT().GetEstateByID(gomock.Any()).Return(nil, errors.New("database error"))
+
+    if assert.NoError(t, handler.AddTreeToEstate(c)) {
+        assert.Equal(t, http.StatusInternalServerError, rec.Code)
+    }
+}
+
+func TestTreeHandler_AddTreeToEstate_TreeCoordinatesOutOfBounds(t *testing.T) {
+    ctrl := gomock.NewController(t)
+    defer ctrl.Finish()
+
+    mockTreeRepo := mocks.NewMockTreeRepository(ctrl)
+    mockEstateRepo := mocks.NewMockEstateRepository(ctrl)
+    handler := NewTreeHandler(mockTreeRepo, mockEstateRepo)
+
+    e := echo.New()
+    estateID := uuid.New().String()
+    req := httptest.NewRequest(http.MethodPost, "/estate/"+estateID+"/tree", strings.NewReader(`{"x": 150, "y": 250, "height": 15}`))
+    req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+    rec := httptest.NewRecorder()
+    c := e.NewContext(req, rec)
+    c.SetParamNames("id")
+    c.SetParamValues(estateID)
+
+    mockEstateRepo.EXPECT().GetEstateByID(gomock.Any()).Return(&models.Estate{ID: uuid.MustParse(estateID), Width: 100, Length: 200}, nil)
+
+    if assert.NoError(t, handler.AddTreeToEstate(c)) {
+        assert.Equal(t, http.StatusBadRequest, rec.Code)
+    }
+}
+
+func TestTreeHandler_AddTreeToEstate_InvalidTreeHeight(t *testing.T) {
+    ctrl := gomock.NewController(t)
+    defer ctrl.Finish()
+
+    mockTreeRepo := mocks.NewMockTreeRepository(ctrl)
+    mockEstateRepo := mocks.NewMockEstateRepository(ctrl)
+    handler := NewTreeHandler(mockTreeRepo, mockEstateRepo)
+
+    e := echo.New()
+    estateID := uuid.New().String()
+    req := httptest.NewRequest(http.MethodPost, "/estate/"+estateID+"/tree", strings.NewReader(`{"x": 10, "y": 20, "height": 35}`))
+    req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+    rec := httptest.NewRecorder()
+    c := e.NewContext(req, rec)
+    c.SetParamNames("id")
+    c.SetParamValues(estateID)
 
     if assert.NoError(t, handler.AddTreeToEstate(c)) {
         assert.Equal(t, http.StatusBadRequest, rec.Code)

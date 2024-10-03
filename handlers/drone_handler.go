@@ -111,7 +111,7 @@ func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
     var landingPlotX, landingPlotY int
 
     // Simulate drone movement (zigzag)
-    for y := 1; y <= estate.Length; y++ { // assuming estate length and width are both 50 for now
+    for y := 1; y <= estate.Length; y++ {
         for x := 1; x <= estate.Width; x++ {
             key := fmt.Sprintf("%d,%d", x, y)
             treeHeight := treeHeights[key]
@@ -121,6 +121,7 @@ func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
             prevHeight = treeHeight
 
             if maxDistance > 0 && totalDistance > maxDistance {
+                totalDistance -= horizontalDistance + verticalDistance
                 landingPlotX, landingPlotY = x, y
                 limitReached = true
                 logrus.WithFields(logrus.Fields{

@@ -2,8 +2,10 @@ package handlers
 
 import (
     "encoding/json"
+    "errors"
     "net/http"
     "net/http/httptest"
+    "strings"
     "testing"
 
     "sawitpro-recruitment/models"
@@ -13,6 +15,86 @@ import (
     "github.com/labstack/echo/v4"
     "github.com/stretchr/testify/assert"
 )
+
+func TestEstateHandler_CreateEstate(t *testing.T) {
+    ctrl := gomock.NewController(t)
+    defer ctrl.Finish()
+
+    mockEstateRepo := mocks.NewMockEstateRepository(ctrl)
+    handler := NewEstateHandler(mockEstateRepo)
+
+    e := echo.New()
+    req := httptest.NewRequest(http.MethodPost, "/estate", strings.NewReader(`{"width": 100, "length": 200}`))
+    req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+    rec := httptest.NewRecorder()
+    c := e.NewContext(req, rec)
+
+    mockEstateRepo.EXPECT().CreateEstate(gomock.Any()).Return(nil)
+
+    if assert.NoError(t, handler.CreateEstate(c)) {
+        assert.Equal(t, http.StatusCreated, rec.Code)
+        var response models.Estate
+        if assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &response)) {
+            assert.NotEmpty(t, response.ID)
+        }
+    }
+}
+
+func TestEstateHandler_CreateEstate_InvalidInput(t *testing.T) {
+    ctrl := gomock.NewController(t)
+    defer ctrl.Finish()
+
+    mockEstateRepo := mocks.NewMockEstateRepository(ctrl)
+    handler := NewEstateHandler(mockEstateRepo)
+
+    e := echo.New()
+    req := httptest.NewRequest(http.MethodPost, "/estate", strings.NewReader(`invalid json`))
+    req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+    rec := httptest.NewRecorder()
+    c := e.NewContext(req, rec)
+
+    if assert.NoError(t, handler.CreateEstate(c)) {
+        assert.Equal(t, http.StatusBadRequest, rec.Code)
+    }
+}
+
+func TestEstateHandler_CreateEstate_InvalidDimensions(t *testing.T) {
+    ctrl := gomock.NewController(t)
+    defer ctrl.Finish()
+
+    mockEstateRepo := mocks.NewMockEstateRepository(ctrl)
+    handler := NewEstateHandler(mockEstateRepo)
+
+    e := echo.New()
+    req := httptest.NewRequest(http.MethodPost, "/estate", strings.NewReader(`{"width": 0, "length": 200}`))
+    req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+    rec := httptest.NewRecorder()
+    c := e.NewContext(req, rec)
+
+    if assert.NoError(t, handler.CreateEstate(c)) {
+        assert.Equal(t, http.StatusBadRequest, rec.Code)
+    }
+}
+
+func TestEstateHandler_CreateEstate_DatabaseError(t *testing.T) {
+    ctrl := gomock.NewController(t)
+    defer ctrl.Finish()
+
+    mockEstateRepo := mocks.NewMockEstateRepository(ctrl)
+    handler := NewEstateHandler(mockEstateRepo)
+
+    e := echo.New()
+    req := httptest.NewRequest(http.MethodPost, "/estate", strings.NewReader(`{"width": 100, "length": 200}`))
+    req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+    rec := httptest.NewRecorder()
+    c := e.NewContext(req, rec)
+
+    mockEstateRepo.EXPECT().CreateEstate(gomock.Any()).Return(errors.New("database error"))
+
+    if assert.NoError(t, handler.CreateEstate(c)) {
+        assert.Equal(t, http.StatusInternalServerError, rec.Code)
+    }
+}
 
 func TestEstateHandler_GetEstateStats(t *testing.T) {
     ctrl := gomock.NewController(t)
@@ -101,7 +183,7 @@ func TestEstateHandler_GetEstateStats_ErrorFetchingStats(t *testing.T) {
     c.SetParamValues(estateID)
 
     mockEstateRepo.EXPECT().GetEstateByID(gomock.Any()).Return(&models.Estate{ID: uuid.MustParse(estateID)}, nil)
-    mockEstateRepo.EXPECT().GetEstateStats(gomock.Any()).Return(0, 0, 0, 0, assert.AnError)
+    mockEstateRepo.EXPECT().GetEstateStats(gomock.Any()).Return(0, 0, 0, 0, errors.New("database error"))
 
     if assert.NoError(t, handler.GetEstateStats(c)) {
         assert.Equal(t, http.StatusInternalServerError, rec.Code)
