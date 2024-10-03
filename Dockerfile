@@ -10,6 +10,8 @@ COPY go.mod go.sum ./
 # Download all dependencies
 RUN go mod download
 
+RUN go mod vendor
+
 # Install oapi-codegen for generating OpenAPI 3 code
 RUN go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
 
