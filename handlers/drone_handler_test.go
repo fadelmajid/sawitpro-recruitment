@@ -40,6 +40,9 @@ func TestCalculateDronePlanWithLimit(t *testing.T) {
 
     if assert.NoError(t, handler.CalculateDronePlanWithLimit(c)) {
         assert.Equal(t, http.StatusOK, rec.Code)
+        var response map[string]interface{}
+        assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &response))
+        assert.NotNil(t, response["distance"])
     }
 }
 
@@ -61,6 +64,9 @@ func TestCalculateDronePlanWithLimit_InvalidEstateID(t *testing.T) {
 
     if assert.NoError(t, handler.CalculateDronePlanWithLimit(c)) {
         assert.Equal(t, http.StatusBadRequest, rec.Code)
+        var response map[string]string
+        assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &response))
+        assert.Equal(t, "Invalid estate ID format", response["message"])
     }
 }
 
@@ -84,6 +90,9 @@ func TestCalculateDronePlanWithLimit_EstateNotFound(t *testing.T) {
 
     if assert.NoError(t, handler.CalculateDronePlanWithLimit(c)) {
         assert.Equal(t, http.StatusNotFound, rec.Code)
+        var response map[string]string
+        assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &response))
+        assert.Equal(t, "Estate not found", response["message"])
     }
 }
 
@@ -107,6 +116,9 @@ func TestCalculateDronePlanWithLimit_DatabaseErrorRetrievingEstate(t *testing.T)
 
     if assert.NoError(t, handler.CalculateDronePlanWithLimit(c)) {
         assert.Equal(t, http.StatusInternalServerError, rec.Code)
+        var response map[string]string
+        assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &response))
+        assert.Equal(t, "Database error while retrieving estate", response["message"])
     }
 }
 
@@ -131,6 +143,9 @@ func TestCalculateDronePlanWithLimit_DatabaseErrorFetchingTreeHeights(t *testing
 
     if assert.NoError(t, handler.CalculateDronePlanWithLimit(c)) {
         assert.Equal(t, http.StatusInternalServerError, rec.Code)
+        var response map[string]string
+        assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &response))
+        assert.Equal(t, "Database error while fetching tree heights", response["message"])
     }
 }
 
@@ -152,6 +167,9 @@ func TestCalculateDronePlanWithLimit_InvalidMaxDistance(t *testing.T) {
 
     if assert.NoError(t, handler.CalculateDronePlanWithLimit(c)) {
         assert.Equal(t, http.StatusBadRequest, rec.Code)
+        var response map[string]string
+        assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &response))
+        assert.Equal(t, "Invalid max_distance value", response["message"])
     }
 }
 
@@ -185,8 +203,8 @@ func TestCalculateDronePlanWithLimit_MaxDistanceReached(t *testing.T) {
         assert.Equal(t, http.StatusOK, rec.Code)
         var response map[string]interface{}
         if assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &response)) {
-            assert.Equal(t, 40, int(response["total_distance"].(float64)))
-            landedAt := response["landed_at"].(map[string]interface{})
+            assert.Equal(t, 40, int(response["distance"].(float64)))
+            landedAt := response["rest"].(map[string]interface{})
             assert.Equal(t, 3, int(landedAt["x"].(float64)))
             assert.Equal(t, 1, int(landedAt["y"].(float64)))
         }

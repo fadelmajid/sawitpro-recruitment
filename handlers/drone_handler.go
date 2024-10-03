@@ -144,8 +144,8 @@ func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
             "totalDistance": totalDistance,
         }).Info("Drone landed")
         return c.JSON(http.StatusOK, map[string]interface{}{
-            "total_distance": totalDistance,
-            "landed_at": map[string]int{
+            "distance": totalDistance,
+            "rest": map[string]int{
                 "x": landingPlotX,
                 "y": landingPlotY,
             },
@@ -156,7 +156,7 @@ func (h *DroneHandler) CalculateDronePlanWithLimit(c echo.Context) error {
         "totalDistance": totalDistance,
     }).Info("Drone completed the plan")
     return c.JSON(http.StatusOK, map[string]interface{}{
-        "total_distance": totalDistance,
+        "distance": totalDistance,
     })
 }
 
