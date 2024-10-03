@@ -33,9 +33,9 @@ func TestEstateHandler_CreateEstate(t *testing.T) {
 
     if assert.NoError(t, handler.CreateEstate(c)) {
         assert.Equal(t, http.StatusCreated, rec.Code)
-        var response models.Estate
+        var response map[string]string
         if assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &response)) {
-            assert.NotEmpty(t, response.ID)
+            assert.NotEmpty(t, response["Id"])
         }
     }
 }

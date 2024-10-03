@@ -28,7 +28,7 @@ func NewEstateHandler(repo repositories.EstateRepository) *EstateHandler {
 // @Accept json
 // @Produce json
 // @Param estate body models.Estate true "Estate"
-// @Success 201 {object} models.Estate
+// @Success 201 {object} map[string]string
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /estate [post]
@@ -62,7 +62,9 @@ func (h *EstateHandler) CreateEstate(c echo.Context) error {
     }
 
     logrus.Infof("Estate created successfully: %v", estate.ID)
-    return c.JSON(http.StatusCreated, estate)
+    return c.JSON(http.StatusCreated, map[string]string{
+        "Id": estate.ID.String(),
+    })
 }
 
 // GetEstateStats retrieves stats of trees in an estate
