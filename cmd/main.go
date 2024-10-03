@@ -3,11 +3,9 @@ package main
 import (
     "github.com/labstack/echo/v4"
     "github.com/labstack/echo/v4/middleware"
-    "github.com/swaggo/echo-swagger"
     "sawitpro-recruitment/database"
     "sawitpro-recruitment/generated"
     "sawitpro-recruitment/repositories"
-    _ "sawitpro-recruitment/docs"
 )
 
 // @title SawitPro Recruitment API
@@ -35,9 +33,6 @@ func main() {
 
     // Register handlers
     generated.RegisterHandlers(e, server)
-
-    // Swagger route
-    e.GET("/swagger/*", echoSwagger.WrapHandler)
 
     // Start server
     e.Logger.Fatal(e.Start(":8080"))

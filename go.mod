@@ -3,11 +3,12 @@ module sawitpro-recruitment
 go 1.23
 
 require (
-	github.com/golang/mock v1.6.0
-	github.com/google/uuid v1.6.0
-	github.com/labstack/echo/v4 v4.12.0
-	github.com/lib/pq v1.10.9
-	github.com/stretchr/testify v1.9.0
+    github.com/golang/mock v1.6.0
+    github.com/google/uuid v1.6.0
+    github.com/labstack/echo/v4 v4.12.0
+    github.com/lib/pq v1.10.9
+    github.com/stretchr/testify v1.9.0
+    github.com/deepmap/oapi-codegen v1.16.3
 )
 
 require (

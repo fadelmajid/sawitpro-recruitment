@@ -10,17 +10,17 @@ COPY go.mod go.sum ./
 # Download all dependencies
 RUN go mod download
 
-# Install swag for generating Swagger documentation
-RUN go install github.com/swaggo/swag/cmd/swag@latest
+# Install oapi-codegen for generating OpenAPI 3 code
+RUN go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
 
 # Copy the source code into the container
 COPY . .
 
-# Generate Swagger documentation
-RUN swag init -g cmd/main.go
+# Generate OpenAPI 3 code
+RUN make generated
 
 # Run tests
-RUN go test -v ./...
+RUN go test -cover ./...
 
 # Build the Go app with CGO disabled for static linking
 RUN CGO_ENABLED=0 go build -o main ./cmd
@@ -36,8 +36,6 @@ WORKDIR /root/
 
 # Copy the Pre-built binary file from the previous stage
 COPY --from=builder /app/main .
-# Copy the Swagger documentation
-COPY --from=builder /app/docs ./docs
 
 # Expose port 8080 to the outside world
 EXPOSE 8080
