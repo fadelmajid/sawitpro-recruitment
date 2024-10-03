@@ -18,6 +18,7 @@ To run this project locally, ensure you have the following dependencies installe
 
 ## Running the Application
 To build,run, and test the application follow these steps (in file run.sh)
+
     ```bash
     #!/usr/bin/env bash
     make init                      # Initializes 
@@ -27,7 +28,7 @@ To build,run, and test the application follow these steps (in file run.sh)
     sleep 30                       # Wait until API runs
     make test_api                  # Runs the API testing with data.
     docker compose down --volumes  # Stops the docker containers and removes the volumes.
-
+    
 ## API Endpoints
 Here are the main API endpoints provided by this application:
 
