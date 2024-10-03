@@ -11,7 +11,10 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Install oapi-codegen for generating OpenAPI 3 code
-RUN go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
+RUN go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
+
+# Ensure Go bin directory is in the PATH
+ENV PATH=$PATH:/go/bin
 
 # Copy the source code into the container
 COPY . .

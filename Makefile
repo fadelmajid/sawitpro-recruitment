@@ -33,4 +33,4 @@ test_api:
 generated: api.yml
 	@echo "Generating files..."
 	mkdir generated || true
-	oapi-codegen --package generated -generate types,server,spec $< > generated/api.gen.go
+	$(shell go env GOPATH)/bin/oapi-codegen --package generated -generate types,server,spec $< > generated/api.gen.go
