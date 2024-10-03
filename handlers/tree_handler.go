@@ -31,7 +31,7 @@ func NewTreeHandler(treeRepo repositories.TreeRepository, estateRepo repositorie
 // @Produce json
 // @Param id path string true "Estate ID"
 // @Param tree body models.Tree true "Tree"
-// @Success 201 {object} models.Tree
+// @Success 201 {object} map[string]string
 // @Failure 400 {object} map[string]string
 // @Failure 404 {object} map[string]string
 // @Failure 500 {object} map[string]string
@@ -116,5 +116,7 @@ func (h *TreeHandler) AddTreeToEstate(c echo.Context) error {
     }
 
     logrus.Infof("Tree added successfully to estate ID %s: %v", estateUUID, tree.ID)
-    return c.JSON(http.StatusCreated, tree)
+    return c.JSON(http.StatusCreated, map[string]string{
+        "Id": tree.ID.String(),
+    })
 }

@@ -51,13 +51,9 @@ func TestAddTreeToEstate(t *testing.T) {
 
         if assert.NoError(t, handler.AddTreeToEstate(c)) {
             assert.Equal(t, http.StatusCreated, rec.Code)
-            var response models.Tree
+            var response map[string]string
             assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &response))
-            assert.NotEqual(t, uuid.Nil, response.ID)
-            assert.Equal(t, tree.EstateID, response.EstateID)
-            assert.Equal(t, tree.X, response.X)
-            assert.Equal(t, tree.Y, response.Y)
-            assert.Equal(t, tree.Height, response.Height)
+            assert.NotEmpty(t, response["Id"])
         }
     })
 
