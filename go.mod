@@ -3,15 +3,16 @@ module sawitpro-recruitment
 go 1.23
 
 require (
-    github.com/golang/mock v1.6.0
-    github.com/google/uuid v1.6.0
-    github.com/labstack/echo/v4 v4.12.0
-    github.com/lib/pq v1.10.9
-    github.com/stretchr/testify v1.9.0
-    github.com/deepmap/oapi-codegen v1.16.3
+	github.com/deepmap/oapi-codegen v1.16.3
+	github.com/golang/mock v1.6.0
+	github.com/google/uuid v1.6.0
+	github.com/labstack/echo/v4 v4.12.0
+	github.com/lib/pq v1.10.9
+	github.com/stretchr/testify v1.9.0
 )
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.2 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.2.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect

@@ -7,7 +7,7 @@ all: build/main
 build/main: cmd/main.go generated
 	@echo "Building..."
 	go build -o main ./cmd
-    
+
 clean:
 	rm -rf generated
 
@@ -27,6 +27,10 @@ docker-down:
 test:
 	go clean -testcache
 	go test -short -coverprofile coverage.out -short -v ./...
+
+test_cover:
+	go clean -testcache
+	go test -cover ./...
 
 test_api:
 	go clean -testcache
