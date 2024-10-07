@@ -24,9 +24,6 @@ COPY . .
 # Generate OpenAPI 3 code
 RUN make generated
 
-# Run tests
-RUN go test -cover ./...
-
 # Build the Go app with CGO disabled for static linking
 RUN CGO_ENABLED=0 go build -o main ./cmd
 

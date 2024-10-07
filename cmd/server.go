@@ -16,6 +16,11 @@ type Server struct {
 	treeHandler   *handlers.TreeHandler
 }
 
+// GetHello implements generated.ServerInterface.
+func (s *Server) GetHello(ctx echo.Context, params generated.GetHelloParams) error {
+	return handlers.HelloHandler(ctx)
+}
+
 func NewServer(estateRepo repositories.EstateRepository, treeRepo repositories.TreeRepository) *Server {
 	return &Server{
 		estateHandler: handlers.NewEstateHandler(estateRepo),
@@ -47,4 +52,8 @@ func (s *Server) PostEstateIdTree(ctx echo.Context, id uuid.UUID) error {
 	ctx.SetParamNames("id")
 	ctx.SetParamValues(id.String())
 	return s.treeHandler.AddTreeToEstate(ctx)
+}
+
+func (s *Server) HelloHandler(ctx echo.Context) error {
+	return handlers.HelloHandler(ctx)
 }

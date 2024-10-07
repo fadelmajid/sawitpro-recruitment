@@ -38,10 +38,10 @@ func TestCreateEstate(t *testing.T) {
 		c := e.NewContext(req, rec)
 
 		if assert.NoError(t, handler.CreateEstate(c)) {
-			assert.Equal(t, http.StatusCreated, rec.Code)
+			assert.Equal(t, http.StatusOK, rec.Code)
 			var response map[string]string
 			if assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &response)) {
-				assert.NotEmpty(t, response["Id"])
+				assert.NotEmpty(t, response["id"])
 			}
 		}
 	})

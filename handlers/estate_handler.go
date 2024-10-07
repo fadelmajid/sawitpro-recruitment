@@ -1,24 +1,25 @@
 package handlers
 
 import (
-    "net/http"
-    "sawitpro-recruitment/models"
-    "sawitpro-recruitment/repositories"
-    "github.com/google/uuid"
-    "github.com/labstack/echo/v4"
-    "github.com/sirupsen/logrus"
+	"net/http"
+	"sawitpro-recruitment/models"
+	"sawitpro-recruitment/repositories"
+
+	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
+	"github.com/sirupsen/logrus"
 )
 
 // EstateHandler manages estate-related requests.
 type EstateHandler struct {
-    EstateRepo repositories.EstateRepository
+	EstateRepo repositories.EstateRepository
 }
 
 // NewEstateHandler creates a new EstateHandler.
 func NewEstateHandler(repo repositories.EstateRepository) *EstateHandler {
-    return &EstateHandler{
-        EstateRepo: repo,
-    }
+	return &EstateHandler{
+		EstateRepo: repo,
+	}
 }
 
 // CreateEstate handles the creation of a new estate
@@ -33,38 +34,38 @@ func NewEstateHandler(repo repositories.EstateRepository) *EstateHandler {
 // @Failure 500 {object} map[string]string
 // @Router /estate [post]
 func (h *EstateHandler) CreateEstate(c echo.Context) error {
-    estate := new(models.Estate)
-    
-    // Bind the request body to the estate model
-    if err := c.Bind(estate); err != nil {
-        logrus.Warnf("Failed to bind estate: %v", err)
-        return c.JSON(http.StatusBadRequest, map[string]string{
-            "message": "Invalid input format",
-        })
-    }
+	estate := new(models.Estate)
 
-    // Validate estate dimensions
-    if estate.Width < 1 || estate.Length < 1 || estate.Width > 50000 || estate.Length > 50000 {
-        logrus.Warnf("Invalid estate dimensions: width=%d, length=%d", estate.Width, estate.Length)
-        return c.JSON(http.StatusBadRequest, map[string]string{
-            "message": "Estate dimensions must be between 1 and 50000",
-        })
-    }
+	// Bind the request body to the estate model
+	if err := c.Bind(estate); err != nil {
+		logrus.Warnf("Failed to bind estate: %v", err)
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "Invalid input format",
+		})
+	}
 
-    estate.ID = uuid.New()
+	// Validate estate dimensions
+	if estate.Width < 1 || estate.Length < 1 || estate.Width > 50000 || estate.Length > 50000 {
+		logrus.Warnf("Invalid estate dimensions: width=%d, length=%d", estate.Width, estate.Length)
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "Estate dimensions must be between 1 and 50000",
+		})
+	}
 
-    // Call the repository to create estate
-    if err := h.EstateRepo.CreateEstate(estate); err != nil {
-        logrus.Errorf("Failed to store estate in database: %v", err)
-        return c.JSON(http.StatusInternalServerError, map[string]string{
-            "message": "Failed to store estate in database",
-        })
-    }
+	estate.ID = uuid.New()
 
-    logrus.Infof("Estate created successfully: %v", estate.ID)
-    return c.JSON(http.StatusCreated, map[string]string{
-        "Id": estate.ID.String(),
-    })
+	// Call the repository to create estate
+	if err := h.EstateRepo.CreateEstate(estate); err != nil {
+		logrus.Errorf("Failed to store estate in database: %v", err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"message": "Failed to store estate in database",
+		})
+	}
+
+	logrus.Infof("Estate created successfully: %v", estate.ID)
+	return c.JSON(http.StatusOK, map[string]string{
+		"id": estate.ID.String(),
+	})
 }
 
 // GetEstateStats retrieves stats of trees in an estate
@@ -79,48 +80,48 @@ func (h *EstateHandler) CreateEstate(c echo.Context) error {
 // @Failure 500 {object} map[string]string
 // @Router /estate/{id}/stats [get]
 func (h *EstateHandler) GetEstateStats(c echo.Context) error {
-    id := c.Param("id")
+	id := c.Param("id")
 
-    // Convert to UUID
-    estateID, err := uuid.Parse(id)
-    if err != nil {
-        logrus.Warnf("Invalid estate ID format: %s", id)
-        return c.JSON(http.StatusBadRequest, map[string]string{
-            "message": "Invalid estate ID format",
-        })
-    }
+	// Convert to UUID
+	estateID, err := uuid.Parse(id)
+	if err != nil {
+		logrus.Warnf("Invalid estate ID format: %s", id)
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "Invalid estate ID format",
+		})
+	}
 
-    // Check if the estate exists
-    estate, err := h.EstateRepo.GetEstateByID(estateID)
-    if err != nil {
-        logrus.Errorf("Database error while retrieving estate ID %s: %v", estateID, err)
-        return c.JSON(http.StatusInternalServerError, map[string]string{
-            "message": "Database error while retrieving estate",
-        })
-    }
-    if estate == nil {
-        logrus.Warnf("Estate not found: %s", estateID)
-        return c.JSON(http.StatusNotFound, map[string]string{
-            "message": "Estate not found",
-        })
-    }
+	// Check if the estate exists
+	estate, err := h.EstateRepo.GetEstateByID(estateID)
+	if err != nil {
+		logrus.Errorf("Database error while retrieving estate ID %s: %v", estateID, err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"message": "Database error while retrieving estate",
+		})
+	}
+	if estate == nil {
+		logrus.Warnf("Estate not found: %s", estateID)
+		return c.JSON(http.StatusNotFound, map[string]string{
+			"message": "Estate not found",
+		})
+	}
 
-    // Call the repository to get stats
-    count, max, min, median, err := h.EstateRepo.GetEstateStats(estateID)
-    if err != nil {
-        logrus.Errorf("Failed to get estate stats for ID %s: %v", estateID, err)
-        return c.JSON(http.StatusInternalServerError, map[string]string{
-            "message": "Database error while fetching estate stats",
-        })
-    }
+	// Call the repository to get stats
+	count, max, min, median, err := h.EstateRepo.GetEstateStats(estateID)
+	if err != nil {
+		logrus.Errorf("Failed to get estate stats for ID %s: %v", estateID, err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"message": "Database error while fetching estate stats",
+		})
+	}
 
-    stats := map[string]int{
-        "count":  count,
-        "max":    max,
-        "min":    min,
-        "median": median,
-    }
+	stats := map[string]int{
+		"count":  count,
+		"max":    max,
+		"min":    min,
+		"median": median,
+	}
 
-    logrus.Infof("Estate stats retrieved successfully for ID %s", estateID)
-    return c.JSON(http.StatusOK, stats)
+	logrus.Infof("Estate stats retrieved successfully for ID %s", estateID)
+	return c.JSON(http.StatusOK, stats)
 }
